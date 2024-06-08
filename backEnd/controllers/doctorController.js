@@ -57,6 +57,7 @@ exports.login = catchAsync(async (req, res, next) => {
   console.log(req.body);
 
   const user = await Doctor.findOne({ email }).select("+password");
+  console.log(user);
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return next(new AppError("Incorrect email or password", 401));
   }
@@ -111,20 +112,23 @@ exports.protect = catchAsync(async (req, res, next) => {
 });
 exports.update = catchAsync(async (req, res, next) => {
   const id = req.params.id;
-  const { user, date } = req.body;
-
-  const user12 = await User.findById(user._id);
-  if (!user12) {
-    return res.status(404).json({
-      status: "fail",
-      message: "User not found.",
-    });
-  }
+  const currentUser = req.body.user;
+  const date = req.body.date;
+  console.log(req.user);
+  console.log(req.params.id);
+  const patient = await User.findById(req.user);
+  console.log(patient);
+  //   if (!user12) {
+  //     return res.status(404).json({
+  //       status: "fail",
+  //       message: "User not found.",
+  //     });
+  //   }
   const doc = await Doctor.findByIdAndUpdate(
-    id,
+    req.params.id,
     {
       $push: {
-        appointments: { patient: user12, date: date },
+        appointments: { patient: patient, date: date },
       },
     },
     {
@@ -132,12 +136,12 @@ exports.update = catchAsync(async (req, res, next) => {
       runValidators: true,
     }
   );
-  if (!doc) {
-    return res.status(404).json({
-      status: "fail",
-      message: "Doctor not found.",
-    });
-  }
+  //   if (!doc) {
+  //     return res.status(404).json({
+  //       status: "fail",
+  //       message: "Doctor not found.",
+  //     });
+  //   }
   res.status(200).json({
     status: "success",
     data: {
