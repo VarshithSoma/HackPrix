@@ -104,3 +104,53 @@ exports.logOut = catchAsync(async (req, res, next) => {
     status: "success",
   });
 });
+exports.updateSugar = catchAsync(async (req, res, next) => {
+  const sugarValue = req.body.sugar;
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    { $push: { sugar: sugarValue } },
+    { new: true, runValidators: true }
+  );
+  if (!user) {
+    return res.status(404).json({
+      status: "fail",
+      message: "User not found",
+    });
+  }
+  res.status(200).json({
+    status: "success",
+    data: {
+      user,
+    },
+  });
+});
+exports.updateBP = catchAsync(async (req, res, next) => {
+  const { bp } = req.body;
+
+  if (!bp) {
+    return res.status(400).json({
+      status: "fail",
+      message: "BP value is required",
+    });
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    { $push: { bp: bp } },
+    { new: true, runValidators: true }
+  );
+
+  if (!user) {
+    return res.status(404).json({
+      status: "fail",
+      message: "User not found",
+    });
+  }
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      user,
+    },
+  });
+});

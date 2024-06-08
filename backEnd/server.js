@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 
 dotenv.config({ path: "./config.env" });
 
-const DB = "mongodb://127.0.0.1:27017/HackPrix";
+const DB = "mongodb+srv://manoj:manoj@cluster0.r6essc4.mongodb.net/";
 
 mongoose
   .connect(DB, {

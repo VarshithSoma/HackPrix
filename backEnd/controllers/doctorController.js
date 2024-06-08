@@ -55,9 +55,7 @@ exports.signup = async (req, res) => {
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
   console.log(req.body);
-  if (!email || !password) {
-    return next(new AppError("Please provide email and password", 400));
-  }
+
   const user = await Doctor.findOne({ email }).select("+password");
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return next(new AppError("Incorrect email or password", 401));
@@ -83,7 +81,7 @@ exports.getMe = (req, res, next) => {
   req.params.id = req.user.id;
   next();
 };
-exports.getUser = factory.getOne(Doctor, { path: "patient_id" });
+exports.getUser = factory.getOne(Doctor);
 
 exports.protect = catchAsync(async (req, res, next) => {
   let token;
@@ -113,17 +111,20 @@ exports.protect = catchAsync(async (req, res, next) => {
 });
 exports.update = catchAsync(async (req, res, next) => {
   const id = req.params.id;
-  console.log(id);
-  console.log(req.body);
-  console.log(req.body.user._id);
-  const user12 = await User.findById(req.body.user._id);
-  user12.date = req.body.date;
-  console.log(user12);
+  const { user, date } = req.body;
+
+  const user12 = await User.findById(user._id);
+  if (!user12) {
+    return res.status(404).json({
+      status: "fail",
+      message: "User not found.",
+    });
+  }
   const doc = await Doctor.findByIdAndUpdate(
     id,
     {
       $push: {
-        appointments: user12,
+        appointments: { patient: user12, date: date },
       },
     },
     {

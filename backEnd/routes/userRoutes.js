@@ -4,6 +4,8 @@ const Router = express.Router();
 Router.post("/signup", authController.signup);
 Router.post("/login", authController.login);
 Router.get("/logout", authController.logOut);
+Router.patch("/Sugar", authController.protect, authController.updateSugar);
+Router.patch("/Bp", authController.protect, authController.updateBP);
 
 // Router.patch("/update/:id", authController.protect,doctorController.update);
 // Router.get(
